@@ -13,6 +13,8 @@ import java.util.Date;
  */
 public class GetResults {
     
+    
+    
     public GetResults(Date startTime, Date endTime, String feed, int comments) {
         this(startTime, endTime, feed, "", comments);
     }

@@ -36,7 +36,7 @@ public class BuzzfeedController {
         return "Greetings from Spring Boot!";
     }
     
-    @RequestMapping("/api/keywords")
+    @RequestMapping("/api/threshold")
     public String threshold(
             @RequestParam(value="feed") String feed,
             @RequestParam(value = "startTime") Date startTime,
@@ -45,4 +45,16 @@ public class BuzzfeedController {
         return "Greetings from Spring Boot!";
     }
     
+    @RequestMapping("/api/test")
+    public String test() {
+        return "<!DOCTYPE html>\n" +
+            "<html>\n" +
+            "<body>\n" +
+            "\n" +
+            "<marquee>You're awesome and BuzzFeed is awesome</marquee>\n" +
+            "<p>You passed the test!</p>\n" +
+            "\n" +
+            "</body>\n" +
+            "</html>";
+    }
 }
