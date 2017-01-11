@@ -11,19 +11,22 @@ package com.mycompany.buzzfeed.rest.wrapper;
  */
 import java.util.Date;
 import java.util.List;
+import org.json.JSONObject;
+import org.springframework.boot.autoconfigure.web.ErrorController;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
-public class BuzzfeedController {
+public class BuzzfeedController implements ErrorController {
     
     @RequestMapping("/api/timefeed")
     public String timefeed(
             @RequestParam(value="feed") String feed,
             @RequestParam(value = "startTime") Date startTime,
-            @RequestParam(value = "endTime") Date startDate) {
+            @RequestParam(value = "endTime") Date endTime) {
+        GetResults gr = new GetResults(startTime, endTime, feed);
         return "Greetings from Spring Boot!";
     }
     
@@ -32,7 +35,8 @@ public class BuzzfeedController {
             @RequestBody List<String> keywords,
             @RequestParam(value="feed") String feed,
             @RequestParam(value = "startTime") Date startTime,
-            @RequestParam(value = "endTime") Date startDate) {
+            @RequestParam(value = "endTime") Date endTime) {
+        GetResults gr = new GetResults(startTime, endTime, feed, keywords);
         return "Greetings from Spring Boot!";
     }
     
@@ -41,7 +45,8 @@ public class BuzzfeedController {
             @RequestParam(value="feed") String feed,
             @RequestParam(value = "startTime") Date startTime,
             @RequestParam(value = "threshold") int threshold,
-            @RequestParam(value = "endTime") Date startDate) {
+            @RequestParam(value = "endTime") Date endTime) {
+        GetResults gr = new GetResults(startTime, endTime, feed, threshold);
         return "Greetings from Spring Boot!";
     }
     
@@ -57,4 +62,15 @@ public class BuzzfeedController {
             "</body>\n" +
             "</html>";
     }
+    
+    @RequestMapping("/error")
+    public String error() {
+        return new JSONObject().accumulate("success", 0).toString();
+    }
+    
+    @Override
+    public String getErrorPath() {
+        return "/error";
+    }
+    
 }
