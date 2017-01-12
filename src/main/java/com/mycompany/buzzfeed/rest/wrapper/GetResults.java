@@ -21,6 +21,7 @@ import org.json.JSONObject;
  */
 public class GetResults {
     
+    private boolean _past = true;
     private boolean _comments;
     private boolean _keywords;
     private List<String> _wordList;
@@ -59,16 +60,32 @@ public class GetResults {
         JSONObject response = new JSONObject().accumulate("success", 1); //setup response object
         ArrayList<JSONObject> buzzes = new ArrayList<>(); //collection for buzzes
         PostToBuzzfeed ptb = new PostToBuzzfeed(); //creating posting object
-        JSONObject buzzfeedResponse; 
-        try {
-            buzzfeedResponse = new JSONObject(ptb.Buzzes(_feed, 1));
-        }
-        catch (IOException e) {
-            return FAILURE.toString(); //no success if feed doesn't exist
+        int paging = 1;
+        
+        while(paging != 0 && _past) {
+            JSONObject buzzfeedResponse; 
+            try {
+                buzzfeedResponse = new JSONObject(ptb.Buzzes(_feed, paging));
+            }
+            catch (IOException e) {
+                return FAILURE.toString(); //no success if feed doesn't exist
+            }
+            JSONArray buzzArray = buzzfeedResponse.getJSONArray("buzzes");
+            buzzes.addAll(buzzCollector(buzzArray, ptb));
+            try {
+                paging = buzzfeedResponse.getJSONObject("paging").getInt("next");
+            }
+            catch (JSONException e) {
+                break;
+            }
         }
         
-        JSONArray buzzArray = buzzfeedResponse.getJSONArray("buzzes");
-        
+        response.accumulate("buzzes", buzzes);
+        return response.toString();
+    }
+    
+    private List<JSONObject> buzzCollector(JSONArray buzzArray, PostToBuzzfeed ptb) {
+        List<JSONObject> buzzes = new ArrayList<>();
         buzzIterator:
         for(int i = 0; i < buzzArray.length(); i++) { //iterate through all buzzes
            JSONObject buzz = buzzArray.getJSONObject(i); 
@@ -102,7 +119,7 @@ public class GetResults {
                    }
                    int numberComments = 0;
                    
-                   JSONArray commentsArray = comments.getJSONArray("comments"); 
+                   JSONArray commentsArray = comments.getJSONArray("comments"); //get comments list
                    if(commentsArray != null) {
                        numberComments += commentsArray.length();
                         if(numberComments > _numberComments) {
@@ -110,15 +127,15 @@ public class GetResults {
                         }
                    }
                    
-                   int next;
+                   int next; //setup pagination
                    try {
-                       next = comments.getJSONObject("paging").getInt("next");
+                       next = comments.getJSONObject("paging").getInt("next"); //get if there is a next page
                    }
                    catch (JSONException e) {
                        continue;
                    }
                    
-                   while(next != 0) {
+                   while(next != 0) { //shouldn't happen
                         try {
                             comments = new JSONObject(ptb.Comments(buzz.getString("id"), next));
                         }
@@ -134,7 +151,7 @@ public class GetResults {
                            break;
                         }
                         try {
-                            next = comments.getJSONObject("paging").getInt("next");
+                            next = comments.getJSONObject("paging").getInt("next"); //continue to next page..
                         }
                         catch (JSONException e) {
                             break;
@@ -145,11 +162,12 @@ public class GetResults {
                    buzzes.add(buzz); 
                }
            }
-           else if(parse.before(_startTime)) {
+           else if(parse.before(_startTime)) { //if this is in the past before the start time, you've gone too far!
+               _past = false;
                break;
            }
         }
-        response.accumulate("buzzes", buzzes);
-        return response.toString();
+        return buzzes;
     }
+    
 }
