@@ -22,26 +22,20 @@ public class PostToBuzzfeed {
     
     private final String FEED_SEARCH =  "http://www.buzzfeed.com/api/v2/feeds/";
     private final String COMMENT_SEARCH = "http://www.buzzfeed.com/api/v2/comments/";
-    public static final MediaType JSON
-        = MediaType.parse("application/json; charset=utf-8");
-
+    
     OkHttpClient client = new OkHttpClient();
 
-    public String Buzzes(String feed, String json) throws IOException {
-        RequestBody body = RequestBody.create(JSON, json);
+    public String Buzzes(String feed) throws IOException {
         Request request = new Request.Builder()
             .url(FEED_SEARCH + feed)
-            .post(body)
             .build();
         Response response = client.newCall(request).execute();
         return response.body().string();
     }
     
-    public String Comments(String buzz, String json) throws IOException {
-        RequestBody body = RequestBody.create(JSON, json);
+    public String Comments(String buzz) throws IOException {
         Request request = new Request.Builder()
             .url(COMMENT_SEARCH + buzz)
-            .post(body)
             .build();
         Response response = client.newCall(request).execute();
         return response.body().string();
