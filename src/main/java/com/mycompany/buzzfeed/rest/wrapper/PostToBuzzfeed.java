@@ -25,17 +25,17 @@ public class PostToBuzzfeed {
     
     OkHttpClient client = new OkHttpClient();
 
-    public String Buzzes(String feed) throws IOException {
+    public String Buzzes(String feed, int page) throws IOException {
         Request request = new Request.Builder()
-            .url(FEED_SEARCH + feed)
+            .url(FEED_SEARCH + feed + "?p=" + Integer.toString(page))
             .build();
         Response response = client.newCall(request).execute();
         return response.body().string();
     }
     
-    public String Comments(String buzz) throws IOException {
+    public String Comments(String buzz, int page) throws IOException {
         Request request = new Request.Builder()
-            .url(COMMENT_SEARCH + buzz)
+            .url(COMMENT_SEARCH + buzz + "?p=" + Integer.toString(page))
             .build();
         Response response = client.newCall(request).execute();
         return response.body().string();
